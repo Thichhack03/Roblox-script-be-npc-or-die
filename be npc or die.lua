@@ -2,35 +2,13 @@ local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
 -- Khởi tạo menu chính
-local menu = Instance.new("ScreenGui", game.CoreGui)
-menu.Name = "HackMenu"
-
 local toggle = Instance.new("TextButton", menu)
-toggle.Size = UDim2.new(0, 100, 0, 100) -- 10mm ~ 100px
+toggle.Size = UDim2.new(0, 30, 0, 30) -- 3mm ~ 30px
 toggle.Position = UDim2.new(0, 100, 0, 100)
 toggle.Text = "≡"
 toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 toggle.Draggable = true
 toggle.Active = true
-
-local frame = Instance.new("Frame", toggle)
-frame.Position = UDim2.new(1, 5, 0, 0)
-frame.Size = UDim2.new(0, 140, 0, 170)
-frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-frame.Visible = false
-
-toggle.MouseButton1Click:Connect(function()
-    frame.Visible = not frame.Visible
-end)
-
-function createButton(name, y, func)
-    local btn = Instance.new("TextButton", frame)
-    btn.Size = UDim2.new(1, -10, 0, 35)
-    btn.Position = UDim2.new(0, 5, 0, y)
-    btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    btn.MouseButton1Click:Connect(func)
-end
 -- ESP (phân biệt phe)
 createButton("ESP", 5, function()
     for _, plr in pairs(game.Players:GetPlayers()) do
@@ -90,9 +68,9 @@ end)
 
 -- Auto task
 createButton("Auto Task", 125, function()
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ClickDetector") then
-            fireclickdetector(obj)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Enabled then
+            fireproximityprompt(v)
         end
     end
 end)
