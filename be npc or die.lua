@@ -26,3 +26,23 @@ createButton("TEST - Gửi thông báo", 10, function()
         Duration = 3
     })
 end)
+createButton("Bật ESP", 50, function()
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr ~= player and plr.Character and not plr.Character:FindFirstChild("ESP") then
+            local bb = Instance.new("BillboardGui", plr.Character)
+            bb.Name = "ESP"
+            bb.Size = UDim2.new(5, 0, 5, 0)
+            bb.AlwaysOnTop = true
+
+            local frame = Instance.new("Frame", bb)
+            frame.Size = UDim2.new(1, 0, 1, 0)
+            frame.BackgroundTransparency = 0.5
+
+            if plr:GetAttribute("Role") == "Sheriff" then
+                frame.BackgroundColor3 = Color3.fromRGB(0, 150, 255) -- xanh lam
+            else
+                frame.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- đỏ
+            end
+        end
+    end
+end)
