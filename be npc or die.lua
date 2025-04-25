@@ -1,14 +1,6 @@
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
--- Khởi tạo menu chính
-local toggle = Instance.new("TextButton", menu)
-toggle.Size = UDim2.new(0, 30, 0, 30) -- 3mm ~ 30px
-toggle.Position = UDim2.new(0, 100, 0, 100)
-toggle.Text = "≡"
-toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-toggle.Draggable = true
-toggle.Active = true
 -- ESP (phân biệt phe)
 createButton("ESP", 5, function()
     for _, plr in pairs(game.Players:GetPlayers()) do
