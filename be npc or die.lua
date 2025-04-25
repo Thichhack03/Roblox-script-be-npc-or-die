@@ -1,47 +1,46 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local localPlayer = Players.LocalPlayer
+-- Đảm bảo bạn có quyền để chạy script này trong game.
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local camera = game:GetService("Workspace").CurrentCamera
 
--- Hàm tạo Highlight
-function createHighlight(target, color)
-    if target:FindFirstChild("Highlight") then return end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "Highlight"
-    highlight.FillColor = color
-    highlight.OutlineColor = Color3.new(0, 0, 0)
-    highlight.OutlineTransparency = 0
-    highlight.FillTransparency = 0.3
-    highlight.Adornee = target
-    highlight.Parent = target
+-- Tạo một function để vẽ ESP
+local function createESP(target)
+    local espPart = Instance.new("Part")
+    espPart.Parent = workspace
+    espPart.Size = Vector3.new(5, 5, 5)
+    espPart.Shape = Enum.PartType.Ball
+    espPart.Anchored = true
+    espPart.CanCollide = false
+    espPart.Color = Color3.fromRGB(255, 0, 0)
+    espPart.Transparency = 0.5
+    espPart.Material = Enum.Material.Neon
+    
+    -- Làm cho ESP luôn theo sát NPC hoặc người chơi
+    local function updateESP()
+        if target and target:FindFirstChild("HumanoidRootPart") then
+            espPart.CFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+        else
+            espPart:Destroy()
+        end
+    end
+    
+    -- Cập nhật ESP theo thời gian
+    while target and target.Parent do
+        updateESP()
+        wait(0.1)
+    end
 end
 
--- ESP cho "Criminal" (đỏ)
-spawn(function()
-    while true do
-        local zombiesFolder = workspace:FindFirstChild("Zombies")
-        if zombiesFolder then
-            for _, zombie in pairs(zombiesFolder:GetChildren()) do
-                if zombie:IsA("Model") and zombie:FindFirstChild("HumanoidRootPart") then
-                    -- Giả định: Những quái vật là "Criminal"
-                    createHighlight(zombie, Color3.new(1, 0, 0)) -- Màu đỏ cho "Criminal"
-                end
-            end
-        end
-        wait(1)
+-- Tạo ESP cho tất cả NPC trong game
+for _, player in pairs(workspace:GetChildren()) do
+    if player:IsA("Model") and player:FindFirstChild("HumanoidRootPart") then
+        createESP(player)
     end
-end)
--- ESP cho "Sheriff" (xanh lam)
-spawn(function()
-    while true do
-        for _, plr in pairs(Players:GetPlayers()) do
-            if plr ~= localPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                -- Giả định: Những người chơi có "Sheriff" trong nhóm sẽ là "Sheriff"
-                if plr.Team and plr.Team.Name == "Sheriff" then
-                    createHighlight(plr.Character, Color3.new(0, 0.5, 1)) -- Màu xanh lam cho "Sheriff"
-                end
-            end
-        end
-        wait(1)
+end
+
+-- Kiểm tra các NPC mới xuất hiện
+workspace.ChildAdded:Connect(function(child)
+    if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
+        createESP(child)
     end
 end)
