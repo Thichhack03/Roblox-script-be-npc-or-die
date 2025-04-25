@@ -1,131 +1,56 @@
+-- Menu chính
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-local menuBtn = Instance.new("TextButton", ScreenGui)
+local frame = Instance.new("Frame", ScreenGui)
+frame.Size = UDim2.new(0, 30, 0, 30) -- 3mm ~ 30x30px
+frame.Position = UDim2.new(0, 100, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.Active = true
+frame.Draggable = true
 
-menuBtn.Size = UDim2.new(0, 30, 0, 30) -- ~3mm
-menuBtn.Position = UDim2.new(0, 100, 0, 100)
-menuBtn.Text = "🇻🇳"
-menuBtn.TextScaled = true
-menuBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-menuBtn.Draggable = true
-menuBtn.Active = true
-menuBtn.BorderSizePixel = 0
-menuBtn.Name = "VNButton"
+-- Biểu tượng cờ
+local flag = Instance.new("TextLabel", frame)
+flag.Size = UDim2.new(1, 0, 1, 0)
+flag.Text = "🇻🇳"
+flag.TextColor3 = Color3.new(1, 1, 1)
+flag.BackgroundTransparency = 1
 
--- Noclip --
-local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
+-- Khung menu mở rộng
+local menu = Instance.new("Frame", frame)
+menu.Size = UDim2.new(0, 120, 0, 100)
+menu.Position = UDim2.new(1, 5, 0, 0)
+menu.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+menu.Visible = false
 
--- Tạo Button Noclip
-local noclipButton = Instance.new("TextButton")
-noclipButton.Size = UDim2.new(0, 200, 0, 50)
-noclipButton.Position = UDim2.new(0.5, -100, 0.5, 75)  -- Điều chỉnh vị trí nút theo menu
-noclipButton.Text = "Toggle Noclip"
-noclipButton.Parent = screenGui
-
--- Biến xác định trạng thái Noclip
-local noclipEnabled = false
-
-local function toggleNoclip()
-    noclipEnabled = not noclipEnabled
-    local char = player.Character or player.CharacterAdded:Wait()
-    local humanoid = char:WaitForChild("Humanoid")
-
-    -- Bật/tắt Noclip
-    if noclipEnabled then
-        humanoid.PlatformStand = true
-    else
-        humanoid.PlatformStand = false
-    end
-end
-
--- Kết nối sự kiện cho nút Noclip
-noclipButton.MouseButton1Click:Connect(toggleNoclip)
-
--- Noclip liên tục với CanCollide = false
-local RunService = game:GetService("RunService")
-RunService.Stepped:Connect(function()
-    if noclipEnabled then
-        local char = player.Character or player.CharacterAdded:Wait()
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-                part.Velocity = Vector3.new(0, 0, 0) -- Giảm giật
-            end
-        end
-    end
+-- Nút mở menu
+frame.MouseButton1Click:Connect(function()
+	menu.Visible = not menu.Visible
 end)
 
--- GUI Auto Task + Infinite Stamina cho Be NPC or Die | By Thichhack03
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local taskFolder = workspace:WaitForChild("Tasks")
+-- Nút Noclip
+local noclipButton = Instance.new("TextButton", menu)
+noclipButton.Size = UDim2.new(0, 100, 0, 25)
+noclipButton.Position = UDim2.new(0, 10, 0, 10)
+noclipButton.Text = "Noclip: OFF"
 
-local autoTask = false
-local infStamina = false
+local noclipEnabled = false
+noclipButton.MouseButton1Click:Connect(function()
+	noclipEnabled = not noclipEnabled
+	noclipButton.Text = "Noclip: " .. (noclipEnabled and "ON" or "OFF")
+end)
 
--- GUI khởi tạo
-local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 200, 0, 120)
-Frame.Position = UDim2.new(0, 10, 0.4, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Frame.BackgroundTransparency = 0.2
-
-local autoBtn = Instance.new("TextButton", Frame)
-autoBtn.Size = UDim2.new(1, -20, 0, 40)
-autoBtn.Position = UDim2.new(0, 10, 0, 10)
-autoBtn.Text = "Bật Auto Task"
-autoBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-
-local staminaBtn = Instance.new("TextButton", Frame)
-staminaBtn.Size = UDim2.new(1, -20, 0, 40)
-staminaBtn.Position = UDim2.new(0, 10, 0, 60)
-staminaBtn.Text = "Bật Infinite Stamina"
-staminaBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-
--- Auto Task
-local function doTasks()
-	while autoTask do
-		for _, task in pairs(taskFolder:GetChildren()) do
-			if task:IsA("Part") and task:FindFirstChild("ProximityPrompt") and task.ProximityPrompt.Enabled then
-				player.Character:MoveTo(task.Position + Vector3.new(0, 0, -2))
-				wait(0.2)
-				fireproximityprompt(task.ProximityPrompt)
-				wait(0.5)
+-- Vòng lặp Noclip
+game:GetService("RunService").Stepped:Connect(function()
+	if noclipEnabled then
+		local char = game.Players.LocalPlayer.Character
+		if char then
+			for _, part in pairs(char:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = false
+				end
 			end
 		end
-		wait(0.2)
 	end
-end
-
--- Infinite Stamina
-local function keepStamina()
-	while infStamina do
-		if player.Character and player.Character:FindFirstChild("Stamina") then
-			player.Character.Stamina.Value = 100
-		end
-		wait(0.1)
-	end
-end
-
--- Nút Auto Task
-autoBtn.MouseButton1Click:Connect(function()
-	autoTask = not autoTask
-	autoBtn.Text = autoTask and "Tắt Auto Task" or "Bật Auto Task"
-	autoBtn.BackgroundColor3 = autoTask and Color3.fromRGB(200,50,50) or Color3.fromRGB(50,200,50)
-	if autoTask then task.spawn(doTasks) end
 end)
-
--- Nút Infinite Stamina
-staminaBtn.MouseButton1Click:Connect(function()
-	infStamina = not infStamina
-	staminaBtn.Text = infStamina and "Tắt Infinite Stamina" or "Bật Infinite Stamina"
-	staminaBtn.BackgroundColor3 = infStamina and Color3.fromRGB(200,100,50) or Color3.fromRGB(50,150,255)
-	if infStamina then task.spawn(keepStamina) end
-end)
-
--- ESP --
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
@@ -160,4 +85,22 @@ updateESP()
 while true do
     task.wait(3)
     updateESP()
+end
+local player = game.Players.LocalPlayer
+
+while wait(1) do
+    for _, v in pairs(game:GetService("Workspace").Tasks:GetChildren()) do
+        if v:FindFirstChild("TaskProximityPrompt") then
+            fireproximityprompt(v.TaskProximityPrompt)
+        end
+    end
+end
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+while true do
+    wait(0.1)
+    if character:FindFirstChild("Stamina") then
+        character.Stamina.Value = character.Stamina.MaxValue
+    end
 end
