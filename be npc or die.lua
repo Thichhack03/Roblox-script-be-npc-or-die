@@ -17,18 +17,12 @@ local function createButton(name, posY, callback)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.MouseButton1Click:Connect(callback)
 end
-
--- Nút test
-createButton("TEST - Gửi thông báo", 10, function()
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Test thành công!",
-        Text = "Menu hoạt động",
-        Duration = 3
-    })
-end)
 createButton("Bật ESP", 50, function()
     for _, plr in pairs(game.Players:GetPlayers()) do
         if plr ~= player and plr.Character and not plr.Character:FindFirstChild("ESP") then
+            local isSheriff = plr:GetAttribute("Role") == "Sheriff"
+            local isPlayer = plr.UserId > 0
+
             local bb = Instance.new("BillboardGui", plr.Character)
             bb.Name = "ESP"
             bb.Size = UDim2.new(5, 0, 5, 0)
@@ -38,10 +32,12 @@ createButton("Bật ESP", 50, function()
             frame.Size = UDim2.new(1, 0, 1, 0)
             frame.BackgroundTransparency = 0.5
 
-            if plr:GetAttribute("Role") == "Sheriff" then
-                frame.BackgroundColor3 = Color3.fromRGB(0, 150, 255) -- xanh lam
+            if isSheriff then
+                frame.BackgroundColor3 = Color3.fromRGB(0, 150, 255) -- Sheriff
+            elseif isPlayer then
+                frame.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- Người thật
             else
-                frame.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- đỏ
+                bb:Destroy() -- NPC thì xoá ESP
             end
         end
     end
